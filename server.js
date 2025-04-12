@@ -32,11 +32,33 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // CORS setup – ensure FRONT_URL in .env matches your frontend URL.
+// app.use(
+//   cors({
+//     origin: process.env.FRONT_URL || "http://localhost:3001",
+//     methods: ["GET", "POST", "PUT", "DELETE"],
+//     credentials: true,
+//   })
+// );
+
+const allowedOrigins = [
+  "http://localhost:3000", // For local development
+  "https://prms-frontend.vercel.app", // Base production URL
+  "https://prms-frontend-4qy0hnaqh-vikas-projects-0daf32f6.vercel.app", // Current deployed URL
+];
+
 app.use(
   cors({
-    origin: process.env.FRONT_URL || "http://localhost:3001",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: function (origin, callback) {
+      // Allow requests with no origin (e.g., mobile apps) and listed origins
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
